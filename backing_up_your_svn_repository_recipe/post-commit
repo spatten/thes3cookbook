@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+
+require 'backup_svn.rb'
+  
+repos = ARGV[0]
+bucket_name = 'spatten_svn_backup'
+
+svn_backup = SVNBackup.new(repos, bucket_name)  
+svn_backup.do_backup

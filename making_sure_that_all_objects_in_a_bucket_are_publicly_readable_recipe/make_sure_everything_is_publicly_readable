@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'aws/s3'
+require 'rest-open-uri'
+include AWS::S3
+
+SERVICE_URL = 'http://s3.amazonaws.com'
+
+# Usage: make_user_everything_is_publicly_readable <bucket_name>
+bucket = ARGV[0]
+
+AWS::S3::Base.establish_connection!(
+    :access_key_id     => ENV['AMAZON_ACCESS_KEY_ID'],
+    :secret_access_key => ENV['AMAZON_SECRET_ACCESS_KEY']
+)
+
+objects = Bucket.find(bucket).objects
+objects.each do |object|
+  url = File.join(SERVICE_URL, bucket, object.key)
+  begin
+    open(url, :method => :head)
+  rescue OpenURI::HTTPError, '403 Forbidden'
+    puts "#{url} is not accessible!"
+  end
+end

@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 's3_lib'
+
+SERVICE_URL = 'http://s3.amazonaws.com'
+
+# Usage: make_user_everything_is_publicly_readable <bucket_name>
+bucket = ARGV[0]
+
+objects = S3Lib::Bucket.find(bucket).objects
+objects.each do |object|
+  url = File.join(SERVICE_URL, object.url)
+  begin
+    open(url, :method => :head)
+  rescue OpenURI::HTTPError, '403 Forbidden'
+    puts "#{url} is not accessible!"
+  end
+end

@@ -1,0 +1,15 @@
+personal:
+  amazon_access_key_id: <access key>
+  amazon_secret_access_key: <amazon secret key>
+
+spatten_design:
+	amazon_access_key_id: <access key>
+	amazon_secret_access_key: <amazon secret key>
+	
+client_1:
+	amazon_access_key_id: <access key>
+	amazon_secret_access_key: <amazon secret key>
+
+client_2:
+	amazon_access_key_id: <access key>
+	amazon_secret_access_key: <amazon secret key>

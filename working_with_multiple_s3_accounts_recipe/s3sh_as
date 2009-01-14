@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+
+require 'yaml'
+
+# Set the S3 keys to the right account if the account name was given in the command line
+unless ARGV.empty?
+  s3_keys = YAML::load_file(File.join(ENV['HOME'], '.s3_keys.yml'))
+  if s3_keys.has_key?(ARGV[0])
+    keys = s3_keys[ARGV[0]]
+    ENV['AMAZON_ACCESS_KEY_ID'] = keys['amazon_access_key_id']
+    ENV['AMAZON_SECRET_ACCESS_KEY'] = keys['amazon_secret_access_key']
+  end
+end
+
+exec("s3sh")

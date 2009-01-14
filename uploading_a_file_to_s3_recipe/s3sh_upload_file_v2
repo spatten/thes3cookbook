@@ -1,0 +1,18 @@
+#!/usr/bin/env ruby
+require 'rubygems'
+require 'aws/s3'
+
+include AWS::S3
+
+# Usage: s3sh_upload_file <filename> <bucket> [<key>]
+file = ARGV[0]
+bucket = ARGV[1]
+key = ARGV[2] || file
+
+AWS::S3::Base.establish_connection!(
+    :access_key_id     => ENV['AMAZON_ACCESS_KEY_ID'],
+    :secret_access_key => ENV['AMAZON_SECRET_ACCESS_KEY']
+)
+
+Bucket.create(bucket)
+S3Object.store(key, File.read(file), bucket)

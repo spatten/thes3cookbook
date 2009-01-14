@@ -1,0 +1,12 @@
+#!/usr/bin/env ruby
+require 'rubygems'
+require 's3_lib'
+
+# Usage: s3lib_upload_file <filename> <bucket> [<key> [<content_type>]]
+file = ARGV[0]
+bucket = ARGV[1]
+key = ARGV[2] || file
+content_type = ARGV[3] || 'text/plain'
+
+url = File.join(bucket, key)
+S3Lib.request(:put, url, :body => File.read(file), 'content-type' => content_type)

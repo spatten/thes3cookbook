@@ -1,0 +1,20 @@
+pictures:
+  :directory: /Users/Scott/Pictures
+  :bucket: spatten_pictures_backup
+  
+itunes:
+  :directory: /Users/Scott/Music/iTunes/iTunes\ Music
+  :bucket: spatten_music_backup
+  :prefix: itunes
+  
+emusic:
+  :directory: /Users/Scott/Music/eMusic
+  :bucket: spatten_music_backup
+  :prefix: emusic
+  :ignore_regexp: '\Amusic_i_dont_like\/'
+  
+zunior:
+  :directory: /Users/Scott/Music/Zunior
+  :bucket: spatten_music_backup
+  :prefix: zunior
+  :ignore_extensions: 'pdf'

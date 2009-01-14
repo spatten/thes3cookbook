@@ -1,0 +1,42 @@
+#!/usr/bin/env ruby
+
+require File.join(File.dirname(__FILE__),'log_line')
+require 'rubygems'
+require 'aws/s3'
+include AWS::S3
+
+# Usage: parse_log_object_access_vs_time <log_bucket> <object_bucket> <key> <prefix of log objects>
+log_bucket, object_bucket, key, prefix = ARGV
+prefix ||= ''
+
+AWS::S3::Base.establish_connection!(
+    :access_key_id     => ENV['AMAZON_ACCESS_KEY_ID'],
+    :secret_access_key => ENV['AMAZON_SECRET_ACCESS_KEY']
+)
+
+requests_per_day = Hash.new(0)
+objects = Bucket.find(log_bucket, :prefix => prefix).objects
+
+objects.each do |object|
+  STDERR.puts "parsing logs in #{object.key}"
+  object.value.each do |line|
+    begin
+      log = LogLine.new(line)    
+    rescue 
+      STDERR.puts "not a log file.  Skipping"      
+      next 
+    end   
+    if log.bucket_name == object_bucket && log.key == key && log.anonymous_get?
+      date = log.time.strftime "%Y%m%d"
+      requests_per_day[date] += 1
+    end
+  end
+end
+
+requests_array = requests_per_day.collect do |date, num_requests|
+  "#{date},#{num_requests}"
+end
+
+# Generate the CSV output
+puts "Date,Requests"
+puts requests_array.join("\n")

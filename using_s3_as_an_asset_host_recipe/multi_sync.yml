@@ -1,0 +1,19 @@
+assets0:
+  :directory: web_site/public
+  :bucket: assets0.plotomatic.com
+  :access: :public_read
+  
+assets1:
+  :directory: web_site/public
+  :bucket: assets1.plotomatic.com
+  :access: :public_read
+  
+assets2:
+  :directory: web_site/public
+  :bucket: assets2.plotomatic.com
+  :access: :public_read
+  
+assets3:
+  :directory: web_site/public
+  :bucket: assets3.plotomatic.com
+  :access: :public_read  

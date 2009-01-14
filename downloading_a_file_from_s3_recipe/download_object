@@ -1,0 +1,21 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'aws/s3'
+include AWS::S3
+
+# Usage: download_object <bucket> <key> <file>
+# Downloads the object with a key of key in the bucket named bucket and 
+# writes it to a file named filename.
+bucket, key, filename = ARGV
+
+AWS::S3::Base.establish_connection!(
+    :access_key_id     => ENV['AMAZON_ACCESS_KEY_ID'],
+    :secret_access_key => ENV['AMAZON_SECRET_ACCESS_KEY']
+)
+
+contents = S3Object.value(key, bucket)
+
+File.open(filename, 'w') do |file|
+  file.write(contents)
+end

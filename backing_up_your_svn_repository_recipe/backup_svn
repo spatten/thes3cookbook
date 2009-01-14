@@ -1,0 +1,150 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'aws/s3'
+require 'fileutils'
+
+class SVNBackup
+  
+  DEFAULT_PARAMS = {:tmp_dir => '/tmp', 
+                    :dump_frequency => 50, 
+                    :zip_full => true, 
+                    :zip_incremental => true}
+                    
+  def initialize(repos, bucket_name, params = {})
+    @repos = repos    
+    @params = DEFAULT_PARAMS.merge(params)   
+    get_head_revision
+    connect_to_s3_and_get_bucket(bucket_name)
+    get_revisions_to_backup
+  end
+  
+  def cleanup
+    `rm #{File.join(@params[:tmp_dir], 'full.*')}`
+    `rm #{File.join(@params[:tmp_dir], 'change.*')}`
+  end
+  
+  def do_backup
+    cleanup
+    @revisions_to_backup.each do |rev|
+      rev.backup
+    end
+    cleanup
+  end
+
+    
+  def get_head_revision
+    head_revision = `svnlook youngest #{@repos}`
+    raise "SVN repository not found " if head_revision.empty?
+    @head_revision = head_revision.to_i
+  end    
+  
+  def connect_to_s3_and_get_bucket(bucket_name)
+    puts "Connecting to S3...."
+    AWS::S3::Base.establish_connection!(
+        :access_key_id     => ENV['AMAZON_ACCESS_KEY_ID'],
+        :secret_access_key => ENV['AMAZON_SECRET_ACCESS_KEY']
+    )  
+    AWS::S3::Bucket.create(bucket_name) # Create the bucket if it doesn't exist  
+    @bucket = AWS::S3::Bucket.find(bucket_name)        
+  end
+  
+  # You want to back up all revisions that are not in the bucket already
+  def get_revisions_to_backup
+    puts "Getting revisions to back up...."
+    existing_keys = @bucket.objects.collect {|obj| obj.key }
+    @revisions_to_backup = (0 .. @head_revision).to_a.collect do |rev|
+      current_revision = SVNRevision.new(rev, 
+                                         @repos, 
+                                         @bucket, 
+                                         @params[:tmp_dir], 
+                                         @params[:dump_frequency], 
+                                         @params[:zip_full], 
+                                         @params[:zip_incremental])
+      current_revision unless existing_keys.include?(current_revision.filename(true))
+    end.compact
+    puts "revisions that need to be backed up: #{@revisions_to_backup.collect {|revision| revision.rev}.inspect}"
+    puts "#{@revisions_to_backup.length} revisions to back up."
+  end
+  
+end
+
+class SVNRevision
+  attr_reader :rev
+  
+  def initialize(rev, repos, bucket, tmp_dir, dump_frequency, zip_full, zip_incremental)
+    @rev = rev
+    @repos = repos
+    @bucket = bucket
+    @tmp_dir = tmp_dir
+    @dump_frequency = dump_frequency
+    @zip_full = zip_full
+    @zip_incremental = zip_incremental    
+  end
+  
+  def backup
+    create_dump_file
+    upload_to_s3
+    cleanup
+  end
+  
+  def filename(include_extension = false)
+    prefix = is_full? ? "full" : "change"
+    filename = "#{prefix}.#{"%05d" % @rev}"
+    if include_extension && ((is_full? && @zip_full) || (is_incremental? && @zip_incremental))
+      filename += '.gz'
+    end
+    filename
+  end
+  
+  def filename_with_path(include_extension = false)
+    File.join(@tmp_dir, filename(include_extension))
+  end
+  
+  def is_full?
+    @rev % @dump_frequency == 0 && @rev > 0
+  end
+  
+  def is_incremental?
+    !is_full?
+  end
+  
+  def create_dump_file
+    is_full? ? create_full_dump : create_incremental_dump
+  end
+  
+  def create_full_dump
+    puts "Creating full dump for revision #{@rev}"
+    STDOUT.flush
+    `/usr/local/bin/svnadmin dump "#{@repos}" --revision "0:#{@rev}" > #{filename_with_path}`
+    if @zip_full
+      `gzip #{filename_with_path}`
+    end
+  end
+  
+  def create_incremental_dump
+    `/usr/local/bin/svnadmin dump "#{@repos}" --revision "#{@rev}" --incremental > #{filename_with_path}`
+    if @zip_incremental
+      `gzip #{filename_with_path}`
+    end
+  end
+  
+  def cleanup
+    File.unlink(filename_with_path(true))
+  end
+
+  def upload_to_s3
+    AWS::S3::S3Object.store(filename(true), File.open(filename_with_path(true), 'r'), @bucket.name)
+  end
+  
+end  
+
+if __FILE__ == $0
+
+  USAGE = "Usage: backup_svn <repository> <bucket_name>"  
+  (puts USAGE; exit(0)) unless ARGV.length == 2
+  repos, bucket_name = ARGV
+  
+  svn_backup = SVNBackup.new(repos, bucket_name)  
+  svn_backup.do_backup
+end
