@@ -23,7 +23,8 @@ xml = <<XML
     <section href="s3_authentication/authenticating_s3_requests.xml"/>
     <section href="s3_authentication/s3_authentication_intro.xml"/>
     <section href="s3_authentication/the_http_verb.xml"/>
-    <section href="s3_authentication/the_canonicalized_positional_headers.xml"/>
+    <section 
+      href="s3_authentication/the_canonicalized_positional_headers.xml"/>
   </chapter>  
   <appendix>
     <chapter title='Appendix A:S3 Libraries In Other Languages'>

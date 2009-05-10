@@ -7,8 +7,10 @@ module S3Lib
                    :email => 'AmazonCustomerByEmail', 
                    :all_s3 => 'Group', 
                    :public => 'Group'}
-    GROUP_URIS = {'http://acs.amazonaws.com/groups/global/AuthenticatedUsers' => :all_s3,
-                  'http://acs.amazonaws.com/groups/global/AllUsers' => :public}
+    GROUP_URIS = {
+      'http://acs.amazonaws.com/groups/global/AuthenticatedUsers' => 
+        :all_s3,
+      'http://acs.amazonaws.com/groups/global/AllUsers' => :public}
     PERMISSIONS = [:read, :write, :read_acl, :write_acl, :full_control]
     
     # Create a new grant.  

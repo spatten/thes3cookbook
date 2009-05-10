@@ -18,7 +18,8 @@ AWS::S3::Base.establish_connection!(
 files = []
 marker = ''
 loop do
-  bucket = Bucket.find(bucket_name, :max_keys => num_per_page, :marker => marker)
+  bucket = Bucket.find(bucket_name, :max_keys => num_per_page, 
+                       :marker => marker)
   files += bucket.objects.collect {|obj| obj.key}
   marker = bucket.objects.last.key
   break unless bucket.is_truncated

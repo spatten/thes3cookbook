@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'rubygems'
-require 's3_lib'
+require 's3lib'
 
 # Usage: download_object <bucket> <key> <file>
 # Downloads the object with a key of key in the bucket named bucket and 

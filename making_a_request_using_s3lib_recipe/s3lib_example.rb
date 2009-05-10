@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
 require 'rubygems'
-require 's3_lib'
+require 's3lib'
 
 puts S3Lib.request(:get, '').read

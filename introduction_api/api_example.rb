@@ -1,13 +1,13 @@
 #!/usr/bin/env ruby
 
 # require 'rubygems'
-# require 's3_lib'
-require File.join(File.dirname(__FILE__), 'lib/s3_lib')
+# require 's3lib'
+require File.join(File.dirname(__FILE__), 'lib/s3lib')
 include S3Lib
 
 bucket_name = 'spattens_first_bucket'
 
-# Delete the bucket if it already exists.  We want to start with an empty bucket.
+# Delete the bucket if it already exists as want to start with an empty one.
 Bucket.delete(bucket_name, :force => true) if Bucket.find(bucket_name)
 
 # Create the bucket and store it in b
@@ -17,7 +17,8 @@ puts "Objects in bucket: #{bucket.objects.length}"
 
 # Create some objects in the bucket
 S3Object.create(bucket_name, 'first_object.txt', "this is the content")
-S3Object.create(bucket_name, 'second_object.txt', "This is the second object")
+S3Object.create(bucket_name, 'second_object.txt', 
+                "This is the second object")
 
 # Create an object from a file
 File.open('powers.txt', 'w') do |f|
@@ -27,7 +28,8 @@ File.open('powers.txt', 'w') do |f|
 end
 S3Object.create(bucket_name, 'powers.txt', File.read('powers.txt'))
 
-# Look at the objects in the bucket, using refresh to make sure we see the new objects.
+# Look at the objects in the bucket. 
+# Use refresh to make sure we see the new objects.
 puts "Objects in buckets: #{bucket.objects(:refresh => true).length}"
 first_obj = bucket.objects.first
 puts "contents of the first object (#{first_obj.key}): #{first_obj.value}"

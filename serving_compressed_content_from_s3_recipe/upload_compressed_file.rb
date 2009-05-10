@@ -18,4 +18,5 @@ gz = Zlib::GzipWriter.new(strio)
 gz.write(open(filename).read)
 gz.close
 
-S3Object.store(filename, strio.string, bucket, :access => :public_read, "Content-Encoding" => 'gzip' ) 
+S3Object.store(filename, strio.string, bucket, :access => :public_read, 
+               "Content-Encoding" => 'gzip' ) 

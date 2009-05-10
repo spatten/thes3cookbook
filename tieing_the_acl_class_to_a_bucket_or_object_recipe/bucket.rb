@@ -6,12 +6,14 @@ module S3Lib
     attr_reader :name, :xml, :prefix, :marker, :max_keys
     
     def self.create(name, params = {})
-      params['x-amz-acl'] = params.delete(:access) if params[:access] # translate from :access to 'x-amz-acl'
+      # translate from :access to 'x-amz-acl'
+      params['x-amz-acl'] = params.delete(:access) if params[:access]
       response = self.bucket_request(:put, name, params)
       response.status[0] == "200" ? true : false
     end
     
-    # passing :force => true will cause the bucket to be deleted even if it is not empty.
+    # passing :force => true will cause the bucket to be deleted even 
+    # if it is not empty.
     def self.delete(name, params = {})
       if params.delete(:force)
         self.delete_all(name, params)
@@ -89,9 +91,20 @@ module S3Lib
         response = S3Lib.request(verb, name, params)  
       rescue S3Lib::S3ResponseError => error
         case error.amazon_error_type
-        when "NoSuchBucket": raise S3Lib::BucketNotFoundError.new("The bucket '#{name}' does not exist.", error.io, error.s3requester)
-        when "NotSignedUp": raise S3Lib::NotYourBucketError.new("The bucket '#{name}' is owned by someone else.", error.io, error.s3requester)
-        when "BucketNotEmpty": raise S3Lib::BucketNotEmptyError.new("The bucket '#{name}' is not empty, so you can't delete it.\nTry using Bucket.delete_all('#{name}') first, or Bucket.delete('#{name}', :force => true).", error.io, error.s3requester)
+        when "NoSuchBucket"
+          raise S3Lib::BucketNotFoundError.new(
+            "The bucket '#{name}' does not exist.", 
+            error.io, error.s3requester)
+        when "NotSignedUp"
+          raise S3Lib::NotYourBucketError.new(
+            "The bucket '#{name}' is owned by someone else.", 
+            error.io, error.s3requester)
+        when "BucketNotEmpty"
+          raise S3Lib::BucketNotEmptyError.new(
+            "The bucket '#{name}' is not empty, so you can't delete it." + 
+            "\nTry using Bucket.delete_all('#{name}') first, or " + 
+            "Bucket.delete('#{name}', :force => true).", 
+            error.io, error.s3requester)
         else # Re-raise the error if it's not one of the above
           raise
         end

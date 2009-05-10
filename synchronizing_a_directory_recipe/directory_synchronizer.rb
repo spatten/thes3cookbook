@@ -11,7 +11,7 @@ end
 
 require 'find'
 require 'rubygems'
-require 's3_lib'
+require 's3lib'
 include S3Lib
 
 class S3Syncer
@@ -53,7 +53,8 @@ class S3Syncer
         false # Don't upload directories
       when !@bucket[s3_name(file)]
         true  # Upload if file does not exist on S3
-      when @bucket[s3_name(file)].etag != Digest::MD5.hexdigest(File.safe_read(local_name(file)))
+      when @bucket[s3_name(file)].etag != 
+          Digest::MD5.hexdigest(File.safe_read(local_name(file)))
         true  # Upload if MD5 sums don't match
       else
         false  # the MD5 matches and it exists already, so don't upload it
@@ -66,7 +67,7 @@ class S3Syncer
 
     @files_to_upload.each do |file|
       puts "#{file} ===> #{@bucket.name}:#{s3_name(file)}"
-      S3Object.create(@bucket_name, s3_name(file), File.safe_read(file))      
+      S3Object.create(@bucket_name, s3_name(file), File.safe_read(file))
     end
   end
   

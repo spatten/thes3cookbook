@@ -26,11 +26,15 @@ class S3Syncer
     @directory = directory
     @bucket_name = bucket_name
     @params = DEFAULT_PARAMS.merge(params)
-    @params[:ignore_extensions] = @params[:ignore_extensions].split(',') if @params[:ignore_extensions]
+    if @params[:ignore_extensions]
+      @params[:ignore_extensions] = @params[:ignore_extensions].split(',')
+    end
     
-    # sync_params are parameters sent to the S3Object.store in the sync method
+    # sync_params are parameters sent to the S3Object.store 
+    # in the sync method
     @sync_params = @params.dup
-    [:ignore_extensions, :ignore_regexp, :prefix, :compressed_extensions].each do |key|
+    [:ignore_extensions, :ignore_regexp, 
+     :prefix, :compressed_extensions].each do |key|
       @sync_params.delete(key)
     end
   end
@@ -54,8 +58,10 @@ class S3Syncer
   def get_local_files
     @local_files = []
     Find.find(@directory) do |file| 
-      Find.prune if !@params[:ignore_regexp].empty? && file =~ /#{@params[:ignore_regexp]}/
-      Fine.prune if @params[:ignore_extensions] && @params[:ignore_extensions].include?(File.extname(file))
+      Find.prune if !@params[:ignore_regexp].empty? && 
+                    file =~ /#{@params[:ignore_regexp]}/
+      Fine.prune if @params[:ignore_extensions] && 
+                    @params[:ignore_extensions].include?(File.extname(file))
       @local_files.push(file)
     end
   end 
@@ -76,7 +82,8 @@ class S3Syncer
         false # Don't upload directories
       when !@bucket[s3_name(file)]
         true  # Upload if file does not exist on S3
-      when @bucket[s3_name(file)].etag != Digest::MD5.hexdigest(File.safe_read(local_name(file)))
+      when @bucket[s3_name(file)].etag != 
+           Digest::MD5.hexdigest(File.safe_read(local_name(file)))
         true  # Upload if MD5 sums don't match
       else
         false  # the MD5 matches and it exists already, so don't upload it
@@ -94,7 +101,8 @@ class S3Syncer
       else
         File.safe_read(file)
       end
-      puts "#{file} ===> #{@bucket.name}:#{s3_name(file)}, params: #{params.inspect}"
+      puts "#{file} ===> #{@bucket.name}:#{s3_name(file)}, " + 
+           "params: #{params.inspect}"
       S3Object.store(s3_name(file), data, @bucket_name, params)      
     end
   end
@@ -121,7 +129,9 @@ class S3Syncer
   # Remove the base directory, add a prefix and remove slash 
   # at the beginning of the string.
   def s3_name(file)
-    File.join(@params[:prefix], file.sub(/\A#{@directory}/, '')).sub(/\A\//,'')
+    File.join(
+               @params[:prefix], file.sub(/\A#{@directory}/, '')
+             ).sub(/\A\//,'')
   end
   
 end

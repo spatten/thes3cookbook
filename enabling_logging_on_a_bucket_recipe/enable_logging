@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 require 'rubygems'
-require 's3_lib'
+require 's3lib'
 require 'builder'
 
 bucket, target_bucket, target_prefix = ARGV
@@ -8,12 +8,16 @@ bucket, target_bucket, target_prefix = ARGV
 logging_xml = ""
 builder = Builder::XmlMarkup.new(:indent => 2, :target => logging_xml)
 builder.instruct!
-builder.BucketLoggingStatus('xmlns' => "http://s3.amazonaws.com/doc/2006-03-01/") do
+builder.BucketLoggingStatus(
+    'xmlns' => "http://s3.amazonaws.com/doc/2006-03-01/") do
   builder.LoggingEnabled do
     builder.TargetBucket target_bucket
     builder.TargetPrefix target_prefix
   end
 end
 
-S3Lib.request(:put, "#{bucket}?logging", :body => logging_xml, 'content-type' => 'text/xml')
+S3Lib.request(:put, 
+              "#{bucket}?logging", 
+              :body => logging_xml, 
+              'content-type' => 'text/xml')
 S3Lib.request(:put, bucket, 'x-amz-acl' => 'log-delivery-write')

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'rubygems'
-require 's3_lib'
+require 's3lib'
 
 SERVICE_URL = 'http://s3.amazonaws.com'
 

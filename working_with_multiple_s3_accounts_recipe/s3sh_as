@@ -2,7 +2,8 @@
 
 require 'yaml'
 
-# Set the S3 keys to the right account if the account name was given in the command line
+# Set the S3 keys to the right account if the account name was 
+# given in the command line
 unless ARGV.empty?
   s3_keys = YAML::load_file(File.join(ENV['HOME'], '.s3_keys.yml'))
   if s3_keys.has_key?(ARGV[0])

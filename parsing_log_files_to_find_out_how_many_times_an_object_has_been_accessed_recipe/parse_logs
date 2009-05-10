@@ -5,7 +5,9 @@ require 'rubygems'
 require 'aws/s3'
 include AWS::S3
 
-# Usage: parse_log_object_access_vs_time <log_bucket> <object_bucket> <key> <prefix of log objects>
+# Usage: 
+# parse_log_object_access_vs_time <log_bucket> <object_bucket> 
+#                                 <key> <prefix of log objects>
 log_bucket, object_bucket, key, prefix = ARGV
 prefix ||= ''
 
@@ -26,7 +28,8 @@ objects.each do |object|
       STDERR.puts "not a log file.  Skipping"      
       next 
     end   
-    if log.bucket_name == object_bucket && log.key == key && log.anonymous_get?
+    if log.bucket_name == object_bucket && log.key == key && 
+        log.anonymous_get?
       date = log.time.strftime "%Y%m%d"
       requests_per_day[date] += 1
     end

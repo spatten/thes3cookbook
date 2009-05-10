@@ -1,3 +1,4 @@
+# Copyright 2009 Paul Dowman, http://pauldowman.com/
 require "config"
 require "rubygems"
 require "aws/s3"
@@ -14,7 +15,10 @@ def execute_sql(sql)
   run cmd
 end
 
-AWS::S3::Base.establish_connection!(:access_key_id => @aws_access_key_id, :secret_access_key => @aws_secret_access_key, :use_ssl => true)
+AWS::S3::Base.establish_connection!(
+  :access_key_id => @aws_access_key_id, 
+  :secret_access_key => @aws_secret_access_key, 
+  :use_ssl => true)
 
 # It doesn't hurt to try to create a bucket that already exists
 AWS::S3::Bucket.create(@s3_bucket)

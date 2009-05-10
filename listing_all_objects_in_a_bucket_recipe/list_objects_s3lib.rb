@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'rubygems'
-require 's3_lib'
+require 's3lib'
 require 'rexml/document'
 
 bucket = ARGV[0]

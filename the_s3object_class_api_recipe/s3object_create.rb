@@ -14,12 +14,16 @@ module S3Lib
     def self.create(bucket, key, value = "", options = {})    
 			# translate from :access to 'x-amz-acl'
 	    params['x-amz-acl'] = params.delete(:access) if params[:access]
-      options.merge!({:body => value || "", 'content-type' => DEFAULT_CONTENT_TYPE})
-      response = S3Object.object_request(:put, S3Object.url(bucket, key), options)
-      response.status[0] == "200" ? S3Object.new(bucket, key, options) : false
+      options.merge!({:body => value || "", 
+                      'content-type' => DEFAULT_CONTENT_TYPE})
+      response = S3Object.object_request(:put, S3Object.url(bucket, key), 
+                                         options)
+      response.status[0] == "200" ? 
+         S3Object.new(bucket, key, options) : false
     end
 
-    # bucket can be either a Bucket object or a string containing the bucket's name
+    # bucket can be either a Bucket object or a string containing 
+    # the bucket's name
     def self.url(bucket, key)
       bucket_name = bucket.respond_to?(:name) ? bucket.name : bucket
       File.join(bucket_name, key)

@@ -19,7 +19,9 @@ Bucket.create(bucket)
 # Find all of the files to copy
 files_to_copy = []
 Find.find(directory) do |file|
-  files_to_copy.push file unless File.directory?(file) || File.symlink?(file)
+  unless File.directory?(file) || File.symlink?(file)
+    files_to_copy.push file
+  end
 end
 
 # Upload the files to the bucket

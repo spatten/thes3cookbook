@@ -10,7 +10,8 @@ module S3Lib
       @io.rewind 
       @status = io.status
       
-      # The Amazon Error type will always look like <literal>AmazonErrorType</literal>.  Find it with a RegExp.
+      # The Amazon Error type will always look like 
+      # <literal>AmazonErrorType</literal>.  Find it with a RegExp.
       @response =~ /<literal>(.*)<\/literal>/
       @amazon_error_type = $1
       
@@ -18,7 +19,8 @@ module S3Lib
       @s3requester = s3requester
       
       # Call the standard Error initializer
-      # if you put '%s' in the message it will be replaced by the amazon_error_type
+      # if you put '%s' in the message it will be replaced by the 
+      # amazon_error_type
       message += "\namazon error type: %s" unless message =~ /\%s/
       super(message % @amazon_error_type)
     end

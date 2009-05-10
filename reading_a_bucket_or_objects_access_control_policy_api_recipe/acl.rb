@@ -30,10 +30,21 @@ module S3Lib
       rescue S3Lib::S3ResponseError => error
         puts "Error of type #{error.amazon_error_type}"
         case error.amazon_error_type
-        when 'NoSuchBucket': raise S3Lib::BucketNotFoundError.new("The bucket '#{bucket}' does not exist.", error.io, error.s3requester)
-        when 'NotSignedUp': raise S3Lib::NotYourBucketError.new("The bucket '#{bucket}' is owned by somebody else", error.io, error.s3requester)
-        when 'AccessDenied': raise S3Lib::NotYourBucketError.new("The bucket '#{bucket}' is owned by someone else.", error.io, error.s3requester)
-        when 'MalformedACLError': raise S3Lib::MalformedACLError.new("Your ACL was malformed.", error.io, error.s3requester)
+        when 'NoSuchBucket'
+          raise S3Lib::BucketNotFoundError.new(
+            "The bucket '#{bucket}' does not exist.", 
+            error.io, error.s3requester)
+        when 'NotSignedUp'
+           raise S3Lib::NotYourBucketError.new(
+             "The bucket '#{bucket}' is owned by somebody else", 
+             error.io, error.s3requester)
+        when 'AccessDenied'
+           raise S3Lib::NotYourBucketError.new(
+             "The bucket '#{bucket}' is owned by someone else.", 
+             error.io, error.s3requester)
+        when 'MalformedACLError'
+          raise S3Lib::MalformedACLError.new(
+             "Your ACL was malformed.", error.io, error.s3requester)
         else # Re-raise the error if it's not one of the above
           raise
         end

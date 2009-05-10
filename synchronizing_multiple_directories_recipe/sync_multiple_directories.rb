@@ -24,6 +24,9 @@ backups.each_value do |backup|
   directory = backup.delete(:directory)
   bucket = backup.delete(:bucket)
   params = backup
-  raise "Each entry in the config file must have a :bucket and a :directory entry" unless directory && bucket
+  unless directory && bucket
+    raise "Each entry in the config file must have a :bucket and a " + 
+          ":directory entry"
+  end
   S3Syncer.sync(directory, bucket, params)
 end

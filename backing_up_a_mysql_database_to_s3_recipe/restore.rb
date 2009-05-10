@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# Copyright 2009 Paul Dowman, http://pauldowman.com/
 require "common"
 
 # Retrieve a single file from S3
@@ -15,7 +16,8 @@ end
 
 # List the files matching filename_prefix in the S3 bucket
 def list_keys(filename_prefix)
-  AWS::S3::Bucket.objects(@s3_bucket, :prefix => filename_prefix).collect{|obj| obj.key}
+  AWS::S3::Bucket.objects(@s3_bucket, :prefix => filename_prefix
+                         ).collect{|obj| obj.key}
 end
 
 # Retrieve the files matching filename_prefix in the S3 bucket
@@ -46,7 +48,8 @@ begin
   # restore the binary log files
   logs.each do |log|
     # The following will be executed for each binary log file
-    cmd = "mysqlbinlog --database=#{@mysql_database} #{log} | mysql -u#{@mysql_user} "
+    cmd = "mysqlbinlog --database=#{@mysql_database} #{log} | " + 
+          "mysql -u#{@mysql_user} "
     cmd += " -p'#{@mysql_password}' " unless @mysql_password.nil?
     run cmd
   end

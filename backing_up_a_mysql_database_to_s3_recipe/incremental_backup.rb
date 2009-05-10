@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# Copyright 2009 Paul Dowman, http://pauldowman.com/
 require "common"
 
 begin

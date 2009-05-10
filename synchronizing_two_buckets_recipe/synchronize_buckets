@@ -26,7 +26,9 @@ module AWS
       # target_bucket can be a bucket instance or a string containing
       # the name of the bucket.
       def copy_to_bucket(target_bucket, params = {})
-        target_bucket = target_bucket.name if target_bucket.is_a?(AWS::S3::Bucket)
+        if target_bucket.is_a?(AWS::S3::Bucket)
+          target_bucket = target_bucket.name
+        end
         puts "#{key} => #{target_bucket}"
         begin
           S3Object.store(key, nil, target_bucket, 
@@ -45,7 +47,8 @@ module AWS
           target_bucket = AWS::S3::Bucket.find(target_bucket) 
         end
         if target_bucket[key]
-          params.merge!('x-amz-copy-source-if-none-match' => target_bucket[key].etag)
+          params.merge!(
+            'x-amz-copy-source-if-none-match' => target_bucket[key].etag)
         end
         copy_to_bucket(target_bucket, params)
       end

@@ -44,8 +44,9 @@ class SVNBackup
     AWS::S3::Base.establish_connection!(
         :access_key_id     => ENV['AMAZON_ACCESS_KEY_ID'],
         :secret_access_key => ENV['AMAZON_SECRET_ACCESS_KEY']
-    )  
-    AWS::S3::Bucket.create(bucket_name) # Create the bucket if it doesn't exist  
+    )
+    # Create the bucket if it doesn't exist  
+    AWS::S3::Bucket.create(bucket_name)
     @bucket = AWS::S3::Bucket.find(bucket_name)        
   end
   
@@ -61,9 +62,12 @@ class SVNBackup
                                          @params[:dump_frequency], 
                                          @params[:zip_full], 
                                          @params[:zip_incremental])
-      current_revision unless existing_keys.include?(current_revision.filename(true))
+      current_revision unless existing_keys.include?(
+           current_revision.filename(true)
+         )
     end.compact
-    puts "revisions that need to be backed up: #{@revisions_to_backup.collect {|revision| revision.rev}.inspect}"
+    puts "revisions that need to be backed up: " + 
+         "#{@revisions_to_backup.collect {|revision| revision.rev}.inspect}"
     puts "#{@revisions_to_backup.length} revisions to back up."
   end
   
@@ -72,7 +76,8 @@ end
 class SVNRevision
   attr_reader :rev
   
-  def initialize(rev, repos, bucket, tmp_dir, dump_frequency, zip_full, zip_incremental)
+  def initialize(rev, repos, bucket, tmp_dir, dump_frequency, 
+                 zip_full, zip_incremental)
     @rev = rev
     @repos = repos
     @bucket = bucket
@@ -91,7 +96,8 @@ class SVNRevision
   def filename(include_extension = false)
     prefix = is_full? ? "full" : "change"
     filename = "#{prefix}.#{"%05d" % @rev}"
-    if include_extension && ((is_full? && @zip_full) || (is_incremental? && @zip_incremental))
+    if include_extension && ((is_full? && @zip_full) || 
+        (is_incremental? && @zip_incremental))
       filename += '.gz'
     end
     filename
@@ -116,14 +122,18 @@ class SVNRevision
   def create_full_dump
     puts "Creating full dump for revision #{@rev}"
     STDOUT.flush
-    `/usr/local/bin/svnadmin dump "#{@repos}" --revision "0:#{@rev}" > #{filename_with_path}`
+    cmd = "/usr/local/bin/svnadmin dump '#{@repos}' --revision " + 
+          "'0:#{@rev}' > #{filename_with_path}"
+    `#{cmd}`
     if @zip_full
       `gzip #{filename_with_path}`
     end
   end
   
   def create_incremental_dump
-    `/usr/local/bin/svnadmin dump "#{@repos}" --revision "#{@rev}" --incremental > #{filename_with_path}`
+    cmd = "/usr/local/bin/svnadmin dump '#{@repos}' --revision " + 
+          "'#{@rev}' --incremental > '#{filename_with_path}'"
+    `#{cmd}`
     if @zip_incremental
       `gzip #{filename_with_path}`
     end
@@ -134,7 +144,9 @@ class SVNRevision
   end
 
   def upload_to_s3
-    AWS::S3::S3Object.store(filename(true), File.open(filename_with_path(true), 'r'), @bucket.name)
+    AWS::S3::S3Object.store(filename(true), 
+                            File.open(filename_with_path(true), 'r'),
+                            @bucket.name)
   end
   
 end  

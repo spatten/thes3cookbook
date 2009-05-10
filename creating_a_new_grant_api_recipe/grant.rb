@@ -5,8 +5,10 @@ module S3Lib
                    :email => 'AmazonCustomerByEmail', 
                    :all_s3 => 'Group', 
                    :public => 'Group'}
-    GROUP_URIS = {'http://acs.amazonaws.com/groups/global/AuthenticatedUsers' => :all_s3,
-                  'http://acs.amazonaws.com/groups/global/AllUsers' => :public}
+    GROUP_URIS = {
+      'http://acs.amazonaws.com/groups/global/AuthenticatedUsers' => 
+         :all_s3,
+      'http://acs.amazonaws.com/groups/global/AllUsers' => :public}
     PERMISSIONS = [:read, :write, :read_acl, :write_acl, :full_control]
     NAMESPACE_URI = 'http://www.w3.org/2001/XMLSchema-instance'
     
@@ -28,7 +30,8 @@ module S3Lib
     def to_xml
       builder = Builder::XmlMarkup.new(:indent => 2)
       xml = builder.Grant do
-        builder.Grantee('xmlns:xsi' => NAMESPACE_URI, 'xsi:type' => GRANT_TYPES[@type]) do
+        builder.Grantee('xmlns:xsi' => NAMESPACE_URI, 
+                        'xsi:type' => GRANT_TYPES[@type]) do
           case type
           when :canonical: builder.ID(@grantee)
           when :email: builder.EmailAddress(@grantee)

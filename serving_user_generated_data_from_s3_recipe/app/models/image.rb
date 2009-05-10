@@ -8,7 +8,8 @@ class Image < ActiveRecord::Base
   end
   
   def upload_to_s3
-    AWS::S3::S3Object.store(name, File.open(full_local_url), BUCKET, :access => :public_read)
+    AWS::S3::S3Object.store(name, File.open(full_local_url), BUCKET, 
+                            :access => :public_read)
     update_attribute(:is_on_s3, true)
   end
   

@@ -13,7 +13,8 @@ module S3Lib
       @grants || get_grants
     end
     
-    # permission must be one of :read, :write, :read_acl, :write_acl or :full_control
+    # permission must be one of :read, :write, :read_acl, 
+    # :write_acl or :full_control
     # The grantee Hash should look like this:
     # {:type => :canonical|:email|:all_s3|:public, 
     #  :grantee => canonical_user_id | email_address}
@@ -46,7 +47,8 @@ module S3Lib
     
     def to_xml
       builder = Builder::XmlMarkup.new(:indent => 2)
-      xml = builder.AccessControlPolicy('xmlns' => 'http://s3.amazonaws.com/doc/2006-03-01/') do
+      xml = builder.AccessControlPolicy(
+          'xmlns' => 'http://s3.amazonaws.com/doc/2006-03-01/') do
         builder.Owner do
           builder.ID(owner)
         end
@@ -73,16 +75,28 @@ module S3Lib
     def self.acl_request(verb, url, options = {})
       begin
         if verb == :put
-          options = {'content-type' => 'text/xml'}.merge(options) # Make sure content-type is set for :put
+          # Make sure content-type is set for :put
+          options = {'content-type' => 'text/xml'}.merge(options) 
         end
         response = S3Lib.request(verb, url, options)
       rescue S3Lib::S3ResponseError => error
         puts "Error of type #{error.amazon_error_type}"
         case error.amazon_error_type
-        when 'NoSuchBucket': raise S3Lib::BucketNotFoundError.new("The bucket '#{bucket}' does not exist.", error.io, error.s3requester)
-        when 'NotSignedUp': raise S3Lib::NotYourBucketError.new("The bucket '#{bucket}' is owned by somebody else", error.io, error.s3requester)
-        when 'AccessDenied': raise S3Lib::NotYourBucketError.new("The bucket '#{bucket}' is owned by someone else.", error.io, error.s3requester)
-        when 'MalformedACLError': raise S3Lib::MalformedACLError.new("Your ACL was malformed.", error.io, error.s3requester)
+        when 'NoSuchBucket'
+          raise S3Lib::BucketNotFoundError.new(
+            "The bucket '#{bucket}' does not exist.", 
+            error.io, error.s3requester)
+        when 'NotSignedUp'
+          raise S3Lib::NotYourBucketError.new(
+            "The bucket '#{bucket}' is owned by somebody else", 
+            error.io, error.s3requester)
+        when 'AccessDenied'
+          raise S3Lib::NotYourBucketError.new(
+            "The bucket '#{bucket}' is owned by someone else.", 
+            error.io, error.s3requester)
+        when 'MalformedACLError'
+          raise S3Lib::MalformedACLError.new("Your ACL was malformed.", 
+            error.io, error.s3requester)
         else # Re-raise the error if it's not one of the above
           raise
         end
